@@ -1,7 +1,18 @@
 import './styles.css';
 import './hero-overrides.css';
+import hero01to02 from './hero-data/frames-01-02.js';
+import hero03to04 from './hero-data/frames-03-04.js';
+import hero05to06 from './hero-data/frames-05-06.js';
+import hero07to08 from './hero-data/frames-07-08.js';
+import hero09to10 from './hero-data/frames-09-10.js';
 
-const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.webp`);
+const heroFrames = [
+  ...hero01to02,
+  ...hero03to04,
+  ...hero05to06,
+  ...hero07to08,
+  ...hero09to10
+];
 
 const topics = [
   ['Obrolan Tanpa Basa-basi', 'Percakapan hangat, tajam, dan lucu tentang perjalanan karier, kegagalan, ambisi, serta sisi manusia di balik figur publik.'],
