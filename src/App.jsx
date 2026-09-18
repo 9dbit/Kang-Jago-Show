@@ -15,6 +15,13 @@ function App() {
   const frameLabels = useMemo(() => heroFrames.map((_, i) => String(i + 1).padStart(2, '0')), []);
 
   useEffect(() => {
+    heroFrames.forEach((src) => {
+      const image = new Image();
+      image.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
     const updateFrame = () => {
       const hero = document.querySelector('.hero-sequence');
       if (!hero) return;
@@ -57,6 +64,8 @@ function App() {
               src={src}
               className={`hero-frame ${i === frame ? 'active' : ''}`}
               alt=""
+              decoding="async"
+              fetchPriority={i < 2 ? 'high' : 'auto'}
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           ))}
@@ -113,16 +122,16 @@ function App() {
       <section id="schedule" className="section schedule-section">
         <div className="schedule-card">
           <div>
-            <div className="section-kicker">JADWAL TAYANG</div>
-            <h2>Coming to YouTube.</h2>
+            <div className="section-kicker">JADWAL TAYANG • DUMMY</div>
+            <h2>Jumat malam, waktunya Kang Jago.</h2>
           </div>
           <div className="schedule-data">
-            <div><small>Hari</small><strong>Segera diumumkan</strong></div>
-            <div><small>Jam</small><strong>Segera diumumkan</strong></div>
-            <div><small>Platform</small><strong>YouTube</strong></div>
+            <div><small>Hari</small><strong>Setiap Jumat</strong></div>
+            <div><small>Jam</small><strong>20.00 WIB</strong></div>
+            <div><small>Platform</small><strong>YouTube Premiere</strong></div>
           </div>
         </div>
-        <p className="schedule-note">Jadwal resmi dan tautan channel akan diperbarui setelah finalisasi program.</p>
+        <p className="schedule-note">Jadwal di atas masih dummy untuk kebutuhan layout dan akan diganti saat jadwal resmi diumumkan.</p>
       </section>
 
       <section id="watch" className="watch-section">
