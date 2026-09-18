@@ -42,30 +42,44 @@ jobs:
                   print(target)
           PY
 
-      - name: Map original images to sequence
+      - name: Map original images to sequence by SHA-256
         run: |
           set -euo pipefail
           mkdir -p public/hero
-          copy_one() {
-            prefix="$1"
-            out="$2"
-            src="$(find /tmp/hero-src -type f -iname "${prefix}*" | head -n 1)"
-            if [ -z "$src" ]; then
-              echo "Missing source for ${prefix}" >&2
-              exit 1
-            fi
-            cp "$src" "public/hero/${out}"
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected = {
+              'e7eee1a67fbe1fb0bd5e413805e428033a567d4251069986ae081892a2e8c396': 'frame-01.png',
+              'e9cacc158a6f857e3da5e981937d583c581bfec3911c59dcb8b59c71bba58f56': 'frame-02.png',
+              'a5731bf67a2008f22e2759d975fae32a4cf9e379e3e563379d45039be5b7eea8': 'frame-03.png',
+              '9a0e8dc7cc05b4f7248abbe76ecb1f924aa081223623830689c9593b437e2136': 'frame-04.png',
+              'a9e0da699f9ad9e8b8fbd3e0d79c06331addc5effe823f0589f119507be733b5': 'frame-05.png',
+              '28fa17336367c16ae30a9a6a87bff490f03e44539c57be9e74a76b630ad11407': 'frame-06.png',
+              'b316070632e332eec1f5ead404bd1a85a1d477f2965229de63564173c74581ba': 'frame-07.png',
+              '955a229c3a2b60aa3cc79ada53ae7b70c7ced38b4bde5fc09c6da48b9a0ebf7a': 'frame-08.png',
+              '01aa6c852ee44d32a61b2b5a578d7e0acc4b425e80ed2c7ac9896ff996c61e1c': 'frame-09.png',
+              '1933ad55b4969ef2793e209f94b0d303076c9f77aa4ec56888d517d96647a702': 'frame-10.png',
           }
-          copy_one 'B977D42E-1F00-4E68-A67F-3FE9A6A3290A' 'frame-01.png'
-          copy_one '58B27048-99CF-4C16-A4D5-BE8D943DD357' 'frame-02.png'
-          copy_one 'F24C1011-3480-4EE8-A683-BF2EAA981C0F' 'frame-03.png'
-          copy_one '8860F06E-9A15-47B6-A30A-656460586A01' 'frame-04.png'
-          copy_one '944824F3-97CB-4E25-AC91-C5E85FFD402D' 'frame-05.png'
-          copy_one 'F798051E-3893-432B-B3AC-0539D0693B3A' 'frame-06.png'
-          copy_one '04CF58E3-DD0F-4BBB-8C52-15165E922E9C' 'frame-07.png'
-          copy_one 'CC2BC24D-9150-431C-B2F3-4960A51D2E3D' 'frame-08.png'
-          copy_one 'E693A9EB-D72C-482D-950F-57B2DB9C2986' 'frame-09.png'
-          copy_one 'E442B684-4077-453D-B510-75594CDBFB41' 'frame-10.png'
+
+          found = {}
+          for p in Path('/tmp/hero-src').iterdir():
+              if not p.is_file():
+                  continue
+              data = p.read_bytes()
+              sha = hashlib.sha256(data).hexdigest()
+              print(f'{sha}  {p.name}')
+              if sha in expected:
+                  out = Path('public/hero') / expected[sha]
+                  out.write_bytes(data)
+                  found[sha] = p.name
+                  print(f'MAPPED {p.name} -> {out}')
+
+          missing = [expected[s] for s in expected if s not in found]
+          if missing:
+              raise SystemExit('Missing expected images: ' + ', '.join(missing))
+          PY
 
       - name: Verify PNG signatures and dimensions
         run: |
