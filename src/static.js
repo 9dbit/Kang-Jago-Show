@@ -25,11 +25,11 @@ root.innerHTML = `
     <section id="top" class="hero-sequence">
       <div class="hero-sticky">
         <div class="hero-fallback" aria-hidden="true"></div>
-        ${heroFrames.map((src, i) => `<img src="${src}" class="hero-frame${i === 0 ? ' active' : ''}" data-frame="${i}" alt="" decoding="async">`).join('')}
+        <img id="hero-frame" src="${heroFrames[0]}" class="hero-frame active" data-frame="0" alt="Kang Jago hero frame" decoding="async" fetchpriority="high">
         <div class="hero-vignette"></div><div class="hero-grid"></div>
         <div class="hero-copy">
           <div class="eyebrow">ORIGINAL ENTERTAINMENT SHOW</div>
-          <h1>KANG<br><span>JAGO</span></h1>
+          <h1>KANG JAGO</h1>
           <p>Preman humoris. Kepala dingin. Mulut tajam. Satu meja untuk cerita besar, obrolan liar, dan tamu yang nggak biasa.</p>
           <div class="hero-actions"><a class="btn btn-gold" href="#watch">Tonton di YouTube</a><a class="btn btn-ghost" href="#about">Kenal Kang Jago</a></div>
         </div>
@@ -64,22 +64,26 @@ const menuToggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav');
 menuToggle?.addEventListener('click', () => nav?.classList.toggle('open'));
 
-const frames = Array.from(document.querySelectorAll('.hero-frame'));
+const heroFrame = document.getElementById('hero-frame');
 const frameNumber = document.getElementById('frame-number');
 let activeFrame = 0;
 
-heroFrames.forEach((src) => { const img = new Image(); img.src = src; });
+heroFrames.forEach((src) => {
+  const img = new Image();
+  img.src = src;
+  img.decoding = 'async';
+});
 
 function updateFrame() {
   const hero = document.querySelector('.hero-sequence');
-  if (!hero || frames.length === 0) return;
+  if (!hero || !heroFrame) return;
   const rect = hero.getBoundingClientRect();
   const total = Math.max(hero.offsetHeight - window.innerHeight, 1);
   const progress = Math.min(1, Math.max(0, -rect.top / total));
-  const next = Math.min(frames.length - 1, Math.floor(progress * frames.length));
+  const next = Math.min(heroFrames.length - 1, Math.floor(progress * heroFrames.length));
   if (next === activeFrame) return;
-  frames[activeFrame]?.classList.remove('active');
-  frames[next]?.classList.add('active');
+  heroFrame.src = heroFrames[next];
+  heroFrame.dataset.frame = String(next);
   activeFrame = next;
   if (frameNumber) frameNumber.textContent = String(next + 1).padStart(2, '0');
 }
