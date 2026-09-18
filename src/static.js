@@ -1,7 +1,7 @@
 import './styles.css';
 import './hero-overrides.css';
 
-const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.png?v=fullres-20260918-2`);
+const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.webp?v=hq95-1024x1536-20260918-1`);
 
 const topics = [
   ['Obrolan Tanpa Basa-basi', 'Percakapan hangat, tajam, dan lucu tentang perjalanan karier, kegagalan, ambisi, serta sisi manusia di balik figur publik.'],
