@@ -125,3 +125,24 @@
 @media(preferred-reduced-motion:reduce){
   .hero-frame{transition:opacity .12s linear}
 }
+
+/* Hero V4: compact one-line title and 2x faster scroll-scrub. */
+.hero-sequence{height:280vh}
+.hero-copy h1{font-size:clamp(54px,7.8vw,112px);line-height:.9;white-space:nowrap;margin:16px 0 20px}
+.hero-copy h1 br{display:none}
+.hero-copy h1 span{display:inline;margin-left:.12em}
+
+@media(max-width:960px){
+  .hero-sequence{height:240vh}
+}
+
+@media(max-width:640px){
+  .hero-copy{bottom:9.5vh}
+  .hero-copy h1{font-size:clamp(38px,10.6vw,52px);line-height:.95;white-space:nowrap;margin:8px 0 12px;letter-spacing:-.02em}
+  .hero-copy h1 span{margin-left:.08em;-webkit-text-stroke:1.1px var(--gold)}
+  .hero-copy p{font-size:13px;line-height:1.42;max-width:90%}
+  .hero-actions{margin-top:14px}
+  .hero-actions .btn{padding:10px 12px;font-size:8.5px}
+  .frame-counter{bottom:2.2vh}
+  .scroll-hint{bottom:2.5vh}
+}
