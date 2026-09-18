@@ -2,6 +2,10 @@
   Kang Jago hero image sequence presentation.
   Desktop preserves the portrait composition on the right side so the copy stays readable.
 */
+.hero-sequence{
+  min-height:280vh;
+}
+
 .hero-sticky::before{
   content:"";
   position:absolute;
@@ -22,40 +26,50 @@
   object-fit:contain;
   object-position:center bottom;
   transform-origin:center;
-  filter:saturate(.9) contrast(1.06) drop-shadow(0 24px 40px rgba(0,0,0,.4));
+  transform:none;
+  image-rendering:auto;
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  filter:saturate(1.02) contrast(1.03) drop-shadow(0 24px 40px rgba(0,0,0,.38));
 }
 
 .hero-frame.active{
-  transform:scale(1.01);
+  transform:none;
 }
 
 .hero-vignette{
   background:
-    linear-gradient(90deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.72) 34%,rgba(0,0,0,.18) 62%,rgba(0,0,0,.14) 100%),
-    linear-gradient(0deg,rgba(0,0,0,.72) 0%,transparent 48%);
+    linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.66) 34%,rgba(0,0,0,.16) 62%,rgba(0,0,0,.12) 100%),
+    linear-gradient(0deg,rgba(0,0,0,.64) 0%,transparent 48%);
 }
 
 .frame-counter{background:rgba(0,0,0,.32);backdrop-filter:blur(8px);padding:8px 10px;border-radius:12px}
 
 @media(max-width:960px){
+  .hero-sequence{
+    min-height:240vh;
+  }
+
   .hero-frame{
     left:0;
     width:100%;
     height:100%;
     object-fit:cover;
-    object-position:center 38%;
-    filter:saturate(.94) contrast(1.05);
+    object-position:center 26%;
+    transform:none;
+    filter:saturate(1.02) contrast(1.03);
   }
+
   .hero-vignette{
     background:
-      linear-gradient(0deg,rgba(0,0,0,.93) 0%,rgba(0,0,0,.55) 26%,rgba(0,0,0,.12) 58%,rgba(0,0,0,.06) 100%);
+      linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.50) 22%,rgba(0,0,0,.10) 54%,rgba(0,0,0,.04) 100%);
   }
 }
 
 @media(max-width:640px){
   .hero-copy{
     top:auto;
-    bottom:7.5vh;
+    bottom:7vh;
     left:6vw;
     right:6vw;
     transform:none;
@@ -63,86 +77,64 @@
   }
 
   .hero-copy .eyebrow{
-    font-size:9px;
-    letter-spacing:.18em;
+    font-size:8.5px;
+    letter-spacing:.2em;
     margin-bottom:10px;
   }
 
   .hero-copy h1{
-    font-size:clamp(46px,15.5vw,66px);
-    line-height:.82;
-    margin:0 0 14px;
-    letter-spacing:0;
+    font-size:clamp(34px,11vw,48px);
+    line-height:1;
+    margin:0 0 12px;
+    letter-spacing:.02em;
+    white-space:nowrap;
   }
 
   .hero-copy h1 span{
-    -webkit-text-stroke:1.4px var(--gold);
+    -webkit-text-stroke:0;
+    color:inherit;
   }
 
   .hero-copy p{
-    max-width:94%;
-    font-size:13.5px;
-    line-height:1.48;
+    max-width:100%;
+    font-size:12px;
+    line-height:1.45;
     margin:0;
     color:#ece5dc;
   }
 
   .hero-actions{
-    margin-top:18px;
+    margin-top:16px;
     gap:8px;
   }
 
   .hero-actions .btn{
-    padding:11px 14px;
+    padding:10px 14px;
     font-size:9px;
-    letter-spacing:.095em;
+    letter-spacing:.08em;
   }
 
   .frame-counter{
-    right:5vw;
-    bottom:2.6vh;
+    right:4.5vw;
+    bottom:2.4vh;
     padding:5px 8px;
-    transform:scale(.82);
+    transform:scale(.80);
     transform-origin:right bottom;
   }
 
   .scroll-hint{
     left:6vw;
-    bottom:2.9vh;
+    bottom:2.7vh;
     font-size:8px;
   }
 
-  .hero-frame{
-    object-position:center 31%;
-    transform:scale(1.015);
-  }
-
+  .hero-frame,
   .hero-frame.active{
-    transform:scale(1.025);
+    object-position:center 24%;
+    transform:none;
   }
 }
 
 @media(preferred-reduced-motion:reduce){
-  .hero-frame{transition:opacity .12s linear}
-}
-
-/* Hero V4: compact one-line title and 2x faster scroll-scrub. */
-.hero-sequence{height:280vh}
-.hero-copy h1{font-size:clamp(54px,7.8vw,112px);line-height:.9;white-space:nowrap;margin:16px 0 20px}
-.hero-copy h1 br{display:none}
-.hero-copy h1 span{display:inline;margin-left:.12em}
-
-@media(max-width:960px){
-  .hero-sequence{height:240vh}
-}
-
-@media(max-width:640px){
-  .hero-copy{bottom:9.5vh}
-  .hero-copy h1{font-size:clamp(38px,10.6vw,52px);line-height:.95;white-space:nowrap;margin:8px 0 12px;letter-spacing:-.02em}
-  .hero-copy h1 span{margin-left:.08em;-webkit-text-stroke:1.1px var(--gold)}
-  .hero-copy p{font-size:13px;line-height:1.42;max-width:90%}
-  .hero-actions{margin-top:14px}
-  .hero-actions .btn{padding:10px 12px;font-size:8.5px}
-  .frame-counter{bottom:2.2vh}
-  .scroll-hint{bottom:2.5vh}
+  .hero-frame{transition:none}
 }
