@@ -24,8 +24,23 @@ jobs:
           curl -L --fail --retry 3 \
             'https://www.dropbox.com/scl/fo/rtgepaam9r02b2um8nvo1/ADIf4smXtdHAV9ZwMsmSy-o?rlkey=7vn6rnue1srehvmza2us2oulw&dl=1' \
             -o /tmp/hero.zip
-          unzip -q /tmp/hero.zip -d /tmp/hero-src
-          find /tmp/hero-src -type f -maxdepth 4 -print
+          mkdir -p /tmp/hero-src
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+          src = Path('/tmp/hero.zip')
+          out = Path('/tmp/hero-src')
+          with zipfile.ZipFile(src) as z:
+              for info in z.infolist():
+                  if info.is_dir():
+                      continue
+                  name = Path(info.filename).name
+                  if not name:
+                      continue
+                  target = out / name
+                  target.write_bytes(z.read(info))
+                  print(target)
+          PY
 
       - name: Map original images to sequence
         run: |
