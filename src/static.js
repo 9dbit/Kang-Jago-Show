@@ -1,7 +1,7 @@
 import './styles.css';
 import './hero-overrides.css';
 
-const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.webp`);
+const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.png?v=fullres-20260918-2`);
 
 const topics = [
   ['Obrolan Tanpa Basa-basi', 'Percakapan hangat, tajam, dan lucu tentang perjalanan karier, kegagalan, ambisi, serta sisi manusia di balik figur publik.'],
@@ -25,7 +25,9 @@ root.innerHTML = `
     <section id="top" class="hero-sequence">
       <div class="hero-sticky">
         <div class="hero-fallback" aria-hidden="true"></div>
-        <img id="hero-frame" src="${heroFrames[0]}" class="hero-frame active" data-frame="0" alt="Kang Jago hero frame" decoding="async" fetchpriority="high">
+        <div class="hero-frame-stack" aria-label="Kang Jago hero sequence">
+          ${heroFrames.map((src, i) => `<img src="${src}" class="hero-frame${i === 0 ? ' active' : ''}" data-frame="${i}" alt="" loading="eager" decoding="async" fetchpriority="${i < 4 ? 'high' : 'auto'}" draggable="false">`).join('')}
+        </div>
         <div class="hero-vignette"></div><div class="hero-grid"></div>
         <div class="hero-copy">
           <div class="eyebrow">ORIGINAL ENTERTAINMENT SHOW</div>
@@ -64,30 +66,42 @@ const menuToggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav');
 menuToggle?.addEventListener('click', () => nav?.classList.toggle('open'));
 
-const heroFrame = document.getElementById('hero-frame');
+const heroFrameElements = Array.from(document.querySelectorAll('.hero-frame'));
 const frameNumber = document.getElementById('frame-number');
 let activeFrame = 0;
+let ticking = false;
 
-heroFrames.forEach((src) => {
-  const img = new Image();
-  img.src = src;
-  img.decoding = 'async';
+// Force every original PNG to start loading immediately. The browser keeps all 10 decoded/warm,
+// while CSS only paints the active frame so Safari does not soften ten composited layers at once.
+heroFrameElements.forEach((img) => {
+  img.loading = 'eager';
+  if (img.complete) img.decode?.().catch(() => {});
+  else img.addEventListener('load', () => img.decode?.().catch(() => {}), { once: true });
 });
 
 function updateFrame() {
   const hero = document.querySelector('.hero-sequence');
-  if (!hero || !heroFrame) return;
+  if (!hero) return;
   const rect = hero.getBoundingClientRect();
   const total = Math.max(hero.offsetHeight - window.innerHeight, 1);
   const progress = Math.min(1, Math.max(0, -rect.top / total));
   const next = Math.min(heroFrames.length - 1, Math.floor(progress * heroFrames.length));
   if (next === activeFrame) return;
-  heroFrame.src = heroFrames[next];
-  heroFrame.dataset.frame = String(next);
+  heroFrameElements[activeFrame]?.classList.remove('active');
+  heroFrameElements[next]?.classList.add('active');
   activeFrame = next;
   if (frameNumber) frameNumber.textContent = String(next + 1).padStart(2, '0');
 }
 
-window.addEventListener('scroll', updateFrame, { passive: true });
-window.addEventListener('resize', updateFrame);
+function onViewportChange() {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    updateFrame();
+    ticking = false;
+  });
+}
+
+window.addEventListener('scroll', onViewportChange, { passive: true });
+window.addEventListener('resize', onViewportChange);
 updateFrame();
