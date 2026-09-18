@@ -1,0 +1,76 @@
+name: Build high-resolution hero WebP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-highres-webp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Pillow
+        run: python3 -m pip install --quiet pillow
+
+      - name: Encode full-resolution WebP and switch hero references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          hero = Path('public/hero')
+          for i in range(1, 11):
+              src = hero / f'frame-{i:02d}.png'
+              dst = hero / f'frame-{i:02d}.webp'
+              if not src.exists():
+                  raise SystemExit(f'Missing source: {src}')
+              with Image.open(src) as im:
+                  original_size = im.size
+                  # Keep the exact 1024x1536 source dimensions. High quality, slow encoder.
+                  im.save(dst, 'WEBP', quality=95, method=6, lossless=False)
+              with Image.open(dst) as check:
+                  if check.size != original_size:
+                      raise SystemExit(f'Dimension changed for {dst}: {check.size} != {original_size}')
+              size = dst.stat().st_size
+              if size < 180_000:
+                  raise SystemExit(f'{dst} unexpectedly small ({size} bytes), refusing low-resolution/overcompressed output')
+              print(f'{dst}: {original_size[0]}x{original_size[1]}, {size/1024:.1f} KiB')
+
+          version = 'hq95-1024x1536-20260918-1'
+          replacements = {
+              '.png?v=fullres-20260918-2': f'.webp?v={version}',
+              '.png?v=fullres-20260918-3': f'.webp?v={version}',
+          }
+          for filename in ['src/static.js', 'src/App.jsx', 'index.html']:
+              p = Path(filename)
+              if not p.exists():
+                  continue
+              text = p.read_text()
+              for old, new in replacements.items():
+                  text = text.replace(old, new)
+              # Catch simple hero references that have no cache version.
+              if filename in ['src/static.js', 'src/App.jsx']:
+                  text = text.replace(".padStart(2, '0')}.png`", ".padStart(2, '0')}.webp?v=" + version + "`")
+              p.write_text(text)
+          PY
+
+      - name: Commit high-resolution WebP hero assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/hero/frame-*.webp src/static.js src/App.jsx index.html
+          git diff --cached --stat
+          git diff --cached --quiet || git commit -m 'assets: switch hero to high-resolution WebP quality 95'
+          git push origin HEAD:main
