@@ -3,6 +3,7 @@
   Desktop preserves the portrait composition on the right side so the copy stays readable.
 */
 .hero-sequence{
+  height:280vh;
   min-height:280vh;
 }
 
@@ -47,6 +48,7 @@
 
 @media(max-width:960px){
   .hero-sequence{
+    height:240vh;
     min-height:240vh;
   }
 
