@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 
-const heroFrames = Array.from({ length: 10 }, (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.png`);
+const HERO_ASSET_VERSION = 'hd-png-20260918-v2';
+const heroFrames = Array.from(
+  { length: 10 },
+  (_, i) => `/hero/frame-${String(i + 1).padStart(2, '0')}.png?v=${HERO_ASSET_VERSION}`
+);
 
 const topics = [
   ['Obrolan Tanpa Basa-basi', 'Percakapan hangat, tajam, dan lucu tentang perjalanan karier, kegagalan, ambisi, serta sisi manusia di balik figur publik.'],
@@ -15,12 +19,13 @@ function App() {
   const frameLabels = useMemo(() => heroFrames.map((_, i) => String(i + 1).padStart(2, '0')), []);
 
   useEffect(() => {
-    heroFrames.forEach((src) => {
+    const candidates = [frame - 1, frame + 1].filter((i) => i >= 0 && i < heroFrames.length);
+    candidates.forEach((i) => {
       const image = new Image();
-      image.src = src;
+      image.src = heroFrames[i];
       image.decoding = 'async';
     });
-  }, []);
+  }, [frame]);
 
   useEffect(() => {
     let ticking = false;
@@ -68,20 +73,14 @@ function App() {
       <section id="top" className="hero-sequence">
         <div className="hero-sticky">
           <div className="hero-fallback" aria-hidden="true" />
-          {heroFrames.map((src, i) => (
-            <img
-              key={src}
-              src={src}
-              className={`hero-frame ${i === frame ? 'active' : ''}`}
-              alt=""
-              decoding="async"
-              fetchPriority={i < 2 ? 'high' : 'auto'}
-              onError={(e) => {
-                const fallback = src.replace('.png', '.webp');
-                if (e.currentTarget.src.endsWith('.png')) e.currentTarget.src = fallback;
-              }}
-            />
-          ))}
+          <img
+            key={heroFrames[frame]}
+            src={heroFrames[frame]}
+            className="hero-frame active"
+            alt=""
+            decoding="sync"
+            fetchPriority="high"
+          />
           <div className="hero-vignette" />
           <div className="hero-grid" />
           <div className="hero-copy">
