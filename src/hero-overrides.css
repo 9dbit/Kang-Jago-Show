@@ -1,7 +1,4 @@
-/*
-  Kang Jago hero image sequence presentation.
-  Desktop preserves the portrait composition on the right side so the copy stays readable.
-*/
+/* High-resolution hero sequence: preload/decode all 10 original PNGs, paint only the active frame. */
 .hero-sequence{
   height:280vh;
   min-height:280vh;
@@ -17,7 +14,17 @@
   pointer-events:none;
 }
 
+.hero-frame-stack{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+
 .hero-frame{
+  position:absolute;
+  display:none;
+  opacity:1;
   left:auto;
   right:0;
   top:0;
@@ -26,24 +33,30 @@
   height:100%;
   object-fit:contain;
   object-position:center bottom;
-  transform-origin:center;
-  transform:none;
+  transform:none !important;
+  transition:none !important;
+  filter:none !important;
   image-rendering:auto;
-  -webkit-backface-visibility:hidden;
-  backface-visibility:hidden;
-  filter:saturate(1.02) contrast(1.03) drop-shadow(0 24px 40px rgba(0,0,0,.38));
+  -webkit-backface-visibility:visible;
+  backface-visibility:visible;
+  will-change:auto;
 }
 
 .hero-frame.active{
-  transform:none;
+  display:block;
+  opacity:1;
+  transform:none !important;
 }
 
 .hero-vignette{
+  z-index:2;
   background:
     linear-gradient(90deg,rgba(0,0,0,.94) 0%,rgba(0,0,0,.66) 34%,rgba(0,0,0,.16) 62%,rgba(0,0,0,.12) 100%),
     linear-gradient(0deg,rgba(0,0,0,.64) 0%,transparent 48%);
 }
 
+.hero-grid{z-index:3}
+.hero-copy,.frame-counter,.scroll-hint{z-index:4}
 .frame-counter{background:rgba(0,0,0,.32);backdrop-filter:blur(8px);padding:8px 10px;border-radius:12px}
 
 @media(max-width:960px){
@@ -54,12 +67,13 @@
 
   .hero-frame{
     left:0;
+    right:0;
     width:100%;
     height:100%;
     object-fit:cover;
     object-position:center 26%;
-    transform:none;
-    filter:saturate(1.02) contrast(1.03);
+    transform:none !important;
+    filter:none !important;
   }
 
   .hero-vignette{
@@ -133,10 +147,10 @@
   .hero-frame,
   .hero-frame.active{
     object-position:center 24%;
-    transform:none;
+    transform:none !important;
   }
 }
 
-@media(preferred-reduced-motion:reduce){
-  .hero-frame{transition:none}
+@media(prefers-reduced-motion:reduce){
+  .hero-frame{transition:none !important}
 }
