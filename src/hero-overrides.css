@@ -21,7 +21,7 @@
   height:100%;
   object-fit:contain;
   object-position:center bottom;
-  transform-transform-origin:center;
+  transform-origin:center;
   filter:saturate(.9) contrast(1.06) drop-shadow(0 24px 40px rgba(0,0,0,.4));
 }
 
@@ -52,5 +52,5 @@
 }
 
 @media(preferred-reduced-motion:reduce){
-  .hero-frame{transition:opacity .12s linear|}
+  .hero-frame{transition:opacity .12s linear}
 }
