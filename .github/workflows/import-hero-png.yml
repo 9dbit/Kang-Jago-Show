@@ -1,0 +1,79 @@
+name: Import hero PNG assets
+
+on:
+  push:
+    branches:
+      - asset/png-hero-refresh
+    paths:
+      - '.hero-png-ready'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Dropbox hero folder
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 \
+            'https://www.dropbox.com/scl/fo/rtgepaam9r02b2um8nvo1/ADIf4smXtdHAV9ZwMsmSy-o?rlkey=7vn6rnue1srehvmza2us2oulw&dl=1' \
+            -o /tmp/hero.zip
+          unzip -q /tmp/hero.zip -d /tmp/hero-src
+          find /tmp/hero-src -type f -maxdepth 4 -print
+
+      - name: Map original images to sequence
+        run: |
+          set -euo pipefail
+          mkdir -p public/hero
+          copy_one() {
+            prefix="$1"
+            out="$2"
+            src="$(find /tmp/hero-src -type f -iname "${prefix}*" | head -n 1)"
+            if [ -z "$src" ]; then
+              echo "Missing source for ${prefix}" >&2
+              exit 1
+            fi
+            cp "$src" "public/hero/${out}"
+          }
+          copy_one 'B977D42E-1F00-4E68-A67F-3FE9A6A3290A' 'frame-01.png'
+          copy_one '58B27048-99CF-4C16-A4D5-BE8D943DD357' 'frame-02.png'
+          copy_one 'F24C1011-3480-4EE8-A683-BF2EAA981C0F' 'frame-03.png'
+          copy_one '8860F06E-9A15-47B6-A30A-656460586A01' 'frame-04.png'
+          copy_one '944824F3-97CB-4E25-AC91-C5E85FFD402D' 'frame-05.png'
+          copy_one 'F798051E-3893-432B-B3AC-0539D0693B3A' 'frame-06.png'
+          copy_one '04CF58E3-DD0F-4BBB-8C52-15165E922E9C' 'frame-07.png'
+          copy_one 'CC2BC24D-9150-431C-B2F3-4960A51D2E3D' 'frame-08.png'
+          copy_one 'E693A9EB-D72C-482D-950F-57B2DB9C2986' 'frame-09.png'
+          copy_one 'E442B684-4077-453D-B510-75594CDBFB41' 'frame-10.png'
+
+      - name: Verify PNG signatures and dimensions
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import struct
+          from pathlib import Path
+          for i in range(1, 11):
+              p = Path(f'public/hero/frame-{i:02d}.png')
+              data = p.read_bytes()
+              if data[:8] != b'\x89PNG\r\n\x1a\n':
+                  raise SystemExit(f'{p} is not PNG')
+              w, h = struct.unpack('>II', data[16:24])
+              if w < 768 or h < 1100:
+                  raise SystemExit(f'{p} too small: {w}x{h}')
+              print(f'{p}: {w}x{h}, {len(data)} bytes')
+          PY
+
+      - name: Commit imported PNG assets
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/hero/frame-*.png
+          git diff --cached --quiet || git commit -m 'assets: import original PNG hero sequence'
+          git push origin HEAD:asset/png-hero-refresh
